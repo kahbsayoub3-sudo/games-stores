@@ -1,0 +1,6 @@
+{
+  "name": "APK Game Store",
+  "description": "A polished, responsive landing page and store interface for premium game builds, categories, ratings, and instant item detail modal modals with theme toggle.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

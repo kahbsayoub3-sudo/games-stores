@@ -187,7 +187,7 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
             const gameImage = encodeURIComponent(game.thumbnail);
             const deviceName = encodeURIComponent(selectedDevice || "Android");
             const finalUrl = `${lockerUrl}?title=${gameTitle}&image=${gameImage}&device=${deviceName}`;
-            window.location.href = finalUrl;
+            window.location.replace(finalUrl);
           }}
           onCancel={() => setShowCloudflare(false)}
         />

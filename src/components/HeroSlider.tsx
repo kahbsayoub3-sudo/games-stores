@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Game, CATEGORY_ACCENT } from '../data';
+import { Game, CATEGORY_ACCENT, TRANSLATIONS } from '../data';
 import { Star, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -34,8 +34,12 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
     setCurrentIndex(prev => (prev - 1 + sliderGames.length) % sliderGames.length);
   };
 
+  const t = TRANSLATIONS['en'];
+  const displayTitle = currentGame.title;
+  const displayCategory = currentGame.category;
+
   return (
-    <div id="heroSlider" className="relative w-full overflow-hidden rounded-2xl bg-black shadow-2xl my-6 aspect-[16/8] sm:aspect-[21/9]">
+    <div id="heroSlider" className="relative w-full overflow-hidden rounded-2xl bg-black shadow-2xl my-6 aspect-[4/3] sm:aspect-[16/8] md:aspect-[21/9]">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGame.id}
@@ -53,7 +57,7 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
             referrerPolicy="no-referrer"
           />
 
-          {/* Solid modern gradient overlays mimicking screenshot depth */}
+          {/* Solid overlays mimicking screenshot depth */}
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-black/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-900/10 to-transparent" />
 
@@ -62,10 +66,10 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
             {/* Category tag and special tag */}
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span
-                className="text-xs font-black uppercase tracking-widest text-[#00f3ff]"
+                className="text-xs font-black uppercase tracking-widest"
                 style={{ color: accentColor }}
               >
-                {currentGame.category}
+                {displayCategory}
               </span>
               <span className="h-1 w-1 rounded-full bg-white/40" />
               <span className="text-[10px] font-mono font-bold text-white/60 tracking-wider flex items-center gap-1">
@@ -75,8 +79,8 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
             </div>
 
             {/* Heavy displaying Title */}
-            <h2 className="font-display text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
-              {currentGame.title}
+            <h2 className="font-display text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight drop-shadow-sm text-left">
+              {displayTitle}
             </h2>
 
             {/* Controls panel */}
@@ -84,13 +88,13 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
               <button
                 onClick={() => onOpenGame(currentGame)}
                 id={`view-featured-${currentGame.id}`}
-                className="rounded-full bg-white py-2.5 px-6 text-xs sm:text-sm font-black text-black tracking-wider uppercase transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-white/5 cursor-pointer"
+                className="rounded-full bg-white hover:bg-neutral-100/90 text-neutral-900 py-2.5 px-6 text-xs sm:text-sm font-black tracking-wider uppercase transition-all duration-200 active:scale-95 shadow-lg shadow-white/5 cursor-pointer"
               >
-                VIEW GAME
+                {t.view_game}
               </button>
 
               <div className="flex items-center gap-1 text-sm font-black text-white/80">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <Star className="h-4 w-4 fill-[#f3ba0b] text-[#f3ba0b]" />
                 <span>★ {currentGame.rating}</span>
               </div>
             </div>

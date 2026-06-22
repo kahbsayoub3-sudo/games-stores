@@ -1,7 +1,9 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Game, CATEGORY_ACCENT, GAME_DESCRIPTIONS, NAMES, MESSAGES } from '../data';
-import { X, Star, Smartphone, Laptop, Check, Info, ShieldCheck, Download, Sparkles, MessageSquare, Play, RefreshCw, Send } from 'lucide-react';
+import { Game, CATEGORY_ACCENT, NAMES, MESSAGES, TRANSLATIONS } from '../data';
+import { X, Star, RefreshCw, Send, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import ContentLockerModal from './ContentLockerModal';
+import CloudflareVerification from './CloudflareVerification';
 
 interface GameDetailsModalProps {
   game: Game | null;
@@ -20,36 +22,52 @@ interface LocalReview {
 export default function GameDetailsModal({ game, onClose }: GameDetailsModalProps) {
   if (!game) return null;
 
-  // Selected download target device
-  const [selectedDevice, setSelectedDevice] = useState<'Android' | 'iOS' | 'PC' | 'macOS'>('Android');
-
-  // Simulated download process state
+  const [selectedDevice, setSelectedDevice] = useState<'iOS' | 'Android'>('iOS');
   const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadStep, setDownloadStep] = useState(0);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadStep, setDownloadStep] = useState(0);
   const [isDownloadDone, setIsDownloadDone] = useState(false);
+  const [isLockerOpen, setIsLockerOpen] = useState(false);
+  const [showCloudflare, setShowCloudflare] = useState(false);
 
-  // Reviews list starting with original static comments plus any user added
+  // States for reviews
   const [reviews, setReviews] = useState<LocalReview[]>([]);
   const [userComment, setUserComment] = useState('');
   const [userRating, setUserRating] = useState(5);
   const [newCommentName, setNewCommentName] = useState('');
+  const [showReviewsTab, setShowReviewsTab] = useState(false);
 
-  // Auto-generate some initial reviews when game loads
+  // Rotational index for verified activity feed
+  const [activityIndex, setActivityIndex] = useState(0);
+
+  const t = TRANSLATIONS['en'];
+
+  // Verified Activity lists
+  const VERIFIED_ACTIVITIES_EN = [
+    { name: 'Lisa_Anderson', comment: 'Unlocked successfully!', device: 'iOS Premium' },
+    { name: 'GamerX_44', comment: 'Mod files transferred over USB!', device: 'Android Mod' },
+    { name: 'Youssof_K', comment: 'Works perfectly on iPhone 15 Pro!', device: 'iOS Premium' },
+    { name: 'Mark_D', comment: 'Unlimited resources generated!', device: 'Android Mod' },
+    { name: 'Sarah_Playz', comment: 'Sideloaded successfully in 1 click!', device: 'iOS Premium' },
+    { name: 'Kadir_99', comment: 'Verification completed, very fast!', device: 'Android Mod' },
+  ];
+
+  const activeActivities = VERIFIED_ACTIVITIES_EN;
+
   useEffect(() => {
     const fallbackReviews: LocalReview[] = [];
-    // Combine names and messages into a couple of reviews
+
     for (let i = 0; i < 4; i++) {
       const author = NAMES[(i * 3 + parseInt(game.id) || 4) % NAMES.length];
       const message = MESSAGES[(i * 2 + parseInt(game.id) || 1) % MESSAGES.length];
-      const devices = ['Android APK', 'iOS Premium', 'PC Mod', 'Android Mod'];
-      const deviceUsed = devices[(i + parseInt(game.id)) % devices.length];
+      const devices = ['Android Mod', 'iOS Premium', 'Android APK', 'iOS Sideload'];
+      
       fallbackReviews.push({
         id: `fallback-${i}`,
         author,
-        rating: Math.floor(Math.random() * 2) + 4, // 4 or 5
+        rating: Math.floor(Math.random() * 2) + 4,
         message,
-        device: deviceUsed,
+        device: devices[(i + parseInt(game.id)) % devices.length],
         timestamp: `${i + 1}h ago`
       });
     }
@@ -57,44 +75,53 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
 
     // Initial resets
     setIsDownloading(false);
-    setDownloadStep(0);
     setDownloadProgress(0);
+    setDownloadStep(0);
     setIsDownloadDone(false);
+    setShowCloudflare(false);
   }, [game]);
 
-  // Handler to progress download steps
+  // Rotate activity index
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivityIndex(prev => (prev + 1) % activeActivities.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [activeActivities.length]);
+
+  // Core download logic
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isDownloading) {
       if (downloadProgress < 100) {
         timer = setTimeout(() => {
           setDownloadProgress(prev => {
-            const increment = Math.floor(Math.random() * 8) + 4;
+            const increment = Math.floor(Math.random() * 18) + 14; // rapid compilation progress bar
             const nextVal = Math.min(100, prev + increment);
 
-            // Dynamically change steps based on progress percent
-            if (nextVal < 25) setDownloadStep(0); // Mirror server handshake
-            else if (nextVal < 50) setDownloadStep(1); // Mod licenses binding
-            else if (nextVal < 80) setDownloadStep(2); // Injecting asset files 
-            else if (nextVal < 100) setDownloadStep(3); // Archiving game payload
-            else setDownloadStep(4); // Verification checking
+            if (nextVal < 30) setDownloadStep(0);
+            else if (nextVal < 60) setDownloadStep(1);
+            else if (nextVal < 85) setDownloadStep(2);
+            else setDownloadStep(3);
 
             return nextVal;
           });
-        }, 120);
+        }, 75);
       } else {
-        // Delay a tiny bit once at 100% to simulate safety scan
         timer = setTimeout(() => {
           setIsDownloading(false);
           setIsDownloadDone(true);
-        }, 800);
+          setIsLockerOpen(true); // POP content locker immediately!
+        }, 400);
       }
     }
     return () => clearTimeout(timer);
   }, [isDownloading, downloadProgress]);
 
-  const startSimulatorDownload = () => {
-    setIsDownloading(true);
+  const startDownloadWorkflow = (deviceType: 'iOS' | 'Android') => {
+    setSelectedDevice(deviceType);
+    setShowCloudflare(true);
+    setIsDownloading(false);
     setDownloadProgress(0);
     setDownloadStep(0);
     setIsDownloadDone(false);
@@ -106,7 +133,7 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
 
     const newRev: LocalReview = {
       id: `user-${Date.now()}`,
-      author: newCommentName.trim() || 'GamerPro_44',
+      author: newCommentName.trim() || 'AnonymousGamer',
       rating: userRating,
       message: userComment,
       device: `${selectedDevice} Mod`,
@@ -116,333 +143,334 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
     setReviews(prev => [newRev, ...prev]);
     setUserComment('');
     setNewCommentName('');
-    // User success message trigger can be implied by animated insert!
   };
 
-  // Specs information based on Game Details
-  const gameSize = `${((parseInt(game.id) || 12) * 18 % 380 + 45).toFixed(0)} MB`;
-  const gameVersion = `v${(parseInt(game.id) || 1) % 4 + 1}.${(parseInt(game.id) || 1) % 9}.4`;
-  const accentColor = CATEGORY_ACCENT[game.category] || '#00f3ff';
-  const description = GAME_DESCRIPTIONS[game.category] || 'Enhanced features, ad-free play, premium unlock codes, and visual enhancements.';
+  const currentActivity = activeActivities[activityIndex];
 
   const stepsList = [
-    'Handshaking secure mirror node...',
-    'Authenticating special unlocked keys...',
-    'Writing customized script assets...',
-    'Downloading premium bundle payload...',
-    'Verifying binary hashes with checksums...'
+    'Establishing premium handshake node...',
+    'Matching device architecture signature...',
+    'Consolidating mod asset blocks...',
+    'Finalizing target sandbox compilation...'
   ];
 
+  const displayCategory = game.category;
+  const displayTitle = game.title;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop animation */}
-      <motion.div 
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden overflow-y-auto font-sans" dir="ltr">
+      {/* Background dark blur overlay */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md"
+        className="absolute inset-0 bg-black/90 backdrop-blur-md"
         onClick={onClose}
       />
 
-      {/* Modal Card */}
-      <motion.section 
-        id={`modal-${game.id}`}
-        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+      {/* Cloudflare turnstile security gate overlay */}
+      {showCloudflare && (
+        <CloudflareVerification
+          onSuccess={() => {
+            setShowCloudflare(false);
+            const lockerUrl = "https://auraplay.online/cl/i/7jvk7v";
+            const gameTitle = encodeURIComponent(game.title);
+            const gameImage = encodeURIComponent(game.thumbnail);
+            const deviceName = encodeURIComponent(selectedDevice || "Android");
+            const finalUrl = `${lockerUrl}?title=${gameTitle}&image=${gameImage}&device=${deviceName}`;
+            window.location.href = finalUrl;
+          }}
+          onCancel={() => setShowCloudflare(false)}
+        />
+      )}
+
+      {/* Main card - optimized perfectly for mobile aspect & looks exactly like the phone screenshot */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 duration-300 grid grid-cols-1 md:grid-cols-12 max-h-[92vh]"
+        exit={{ opacity: 0, scale: 0.92, y: 30 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 210 }}
+        className="relative z-10 w-full max-w-[390px] overflow-hidden rounded-[32px] bg-[#0c0c0b] border border-neutral-900 shadow-2xl text-white select-none my-auto"
       >
-        {/* Close Button Corner */}
-        <button 
-          onClick={onClose}
-          id="modalClose"
-          className="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-transform hover:scale-105 active:scale-95 hover:bg-black/80"
-          title="Close detail page"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {/* Upper visual graphic block with gradient fading out */}
+        <div className="relative h-64 w-full overflow-hidden">
+          <img
+            src={game.thumbnail}
+            className="h-full w-full object-cover grayscale-[15%] brightness-95"
+            alt={game.title}
+            referrerPolicy="no-referrer"
+          />
+          {/* Edge shadow masks */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0b] via-[#0c0c0b]/40 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0c0c0b] to-transparent" />
 
-        {/* Column Left: Graphic, Stats, Description */}
-        <div className="md:col-span-5 bg-neutral-50 dark:bg-neutral-950/30 p-5 border-r border-gray-100 dark:border-neutral-800 flex flex-col justify-between max-h-[40vh] md:max-h-[92vh] overflow-y-auto">
-          <div>
-            {/* Visual Header */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-gray-200 dark:border-neutral-800 shadow-md">
-              <img 
-                src={game.thumbnail} 
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-110" 
-                alt={game.title} 
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-              <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5 items-center">
-                <span 
-                  className="rounded px-2 py-0.5 text-[10px] font-black uppercase text-white tracking-widest"
-                  style={{ backgroundColor: accentColor }}
-                >
-                  {game.category}
-                </span>
-                {game.isNew && (
-                  <span className="rounded bg-cyan-500/80 px-2 py-0.5 text-[10px] font-black uppercase text-white tracking-wider animate-pulse">
-                    New Update
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* General Specs */}
-            <h2 className="mt-4 font-display text-xl font-black tracking-tight text-neutral-900 dark:text-white leading-tight">
-              {game.title}
-            </h2>
-
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 font-mono">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-neutral-800 dark:text-neutral-100">{game.rating} Rating</span>
-              <span>•</span>
-              <span>{gameSize}</span>
-              <span>•</span>
-              <span className="text-cyan-500">{gameVersion}</span>
-            </div>
-
-            <p className="mt-4 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-              {description}
-            </p>
-
-            <div className="mt-4 rounded-lg bg-neutral-100/50 p-3 text-[11px] text-neutral-500 dark:bg-neutral-900/40 dark:text-neutral-400 space-y-2 border border-gray-100 dark:border-neutral-800/40">
-              <div className="flex justify-between">
-                <span>Verification Signature:</span>
-                <span className="text-emerald-500 font-mono font-bold">SHA-256 Validated</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Sideload Target:</span>
-                <span className="text-neutral-800 dark:text-neutral-200 font-medium font-mono">SANDBOX_OK</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Current Online Mirrors:</span>
-                <span className="text-neutral-800 dark:text-neutral-200 font-mono">3 Active Mirror Links</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-neutral-800/60 hidden md:block">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-cyan-500" />
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400">Powered by apk25.store Secure Shield</span>
-            </div>
-          </div>
+          {/* Close (X) circular overlay button */}
+          <button
+            onClick={onClose}
+            id="modalClose"
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm border border-neutral-800/40 hover:bg-neutral-900 active:scale-95 transition-all cursor-pointer z-30"
+            title="Close Details"
+          >
+            <X className="h-4.5 w-4.5" />
+          </button>
         </div>
 
-        {/* Column Right: Interactive Install and Reviews Panel */}
-        <div className="md:col-span-7 p-6 flex flex-col justify-between max-h-[52vh] md:max-h-[92vh] overflow-y-auto">
-          {/* Target Sideload Platform Selector */}
-          <div>
-            <span className="text-[10px] font-black uppercase text-neutral-400 tracking-wider block mb-3 font-display">
-              1. Choose Sideload Target Device
+        {/* Content details block container */}
+        <div className="px-6 pb-6 pt-1 flex flex-col items-center text-center">
+          {/* Centered Yellowish category tag */}
+          <span className="text-[11px] font-black tracking-[0.2em] text-[#f3ba0b] uppercase">
+            {displayCategory}
+          </span>
+
+          {/* Centered Large Display Game Title */}
+          <h2 className="mt-1 font-display text-3xl font-black tracking-tight text-white leading-none">
+            {displayTitle}
+          </h2>
+
+          {/* Centered Star Rating and NEW Update badge row */}
+          <div className="mt-2.5 flex items-center justify-center gap-2">
+            <span className="flex items-center gap-1.5 text-sm font-black text-[#f3ba0b]">
+              <Star className="h-4.5 w-4.5 fill-[#f3ba0b] text-[#f3ba0b]" />
+              {game.rating || '4.9'}
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { name: 'Android', icon: Smartphone, ext: 'APK MOD' },
-                { name: 'iOS', icon: Smartphone, ext: 'IPA Sideload' },
-                { name: 'PC', icon: Laptop, ext: 'EXE Standalone' },
-                { name: 'macOS', icon: Laptop, ext: 'DMG Universal' }
-              ].map(platform => {
-                const isSelected = selectedDevice === platform.name;
-                const Icon = platform.icon;
-                return (
+            <span className="rounded bg-[#0284c7]/40 border border-[#0284c7]/30 px-2 py-0.5 text-[9px] font-black uppercase text-cyan-300 tracking-wider">
+              {t.new_badge}
+            </span>
+          </div>
+
+          {/* Download & Loading Actuators Stack */}
+          <div className="mt-6 w-full space-y-3.5 text-left">
+            <AnimatePresence mode="wait">
+              {!isDownloading && !isDownloadDone ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  className="space-y-3"
+                >
+                  {/* IOS DOWNLOAD ACTION */}
                   <button
-                    key={platform.name}
-                    id={`device-${platform.name}`}
-                    onClick={() => {
-                      if (!isDownloading) setSelectedDevice(platform.name as any);
-                    }}
-                    disabled={isDownloading}
-                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all ${
-                      isSelected
-                        ? 'border-cyan-500 bg-cyan-500/10 text-cyan-500 shadow-md shadow-cyan-500/5'
-                        : 'border-gray-100 bg-gray-50/50 hover:bg-gray-100 hover:border-gray-200 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/20 dark:hover:bg-neutral-800'
-                    } ${isDownloading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    onClick={() => startDownloadWorkflow('iOS')}
+                    id="download-ios-button"
+                    className="w-full py-4 px-6 rounded-full font-black text-xs sm:text-xs tracking-wider uppercase text-black bg-[#f3ba0b] hover:bg-[#dba504] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-lg shadow-[#f3ba0b]/10"
                   >
-                    <Icon className="h-4.5 w-4.5 mb-1" />
-                    <span className="text-xs font-bold leading-none text-neutral-800 dark:text-neutral-200">{platform.name}</span>
-                    <span className="text-[9px] text-neutral-400 font-mono mt-0.5">{platform.ext}</span>
+                    <img 
+                      src="https://i.postimg.cc/43RT3RM6/file-apple-logo-black-svg-wikimedia-commons-1.png" 
+                      alt="Apple Logo" 
+                      className="h-4.5 w-auto object-contain select-none"
+                      referrerPolicy="no-referrer"
+                    />
+                    {t.download_ios}
                   </button>
-                );
-              })}
+
+                  {/* ANDROID DOWNLOAD ACTION */}
+                  <button
+                    onClick={() => startDownloadWorkflow('Android')}
+                    id="download-android-button"
+                    className="w-full py-4 px-6 rounded-full font-black text-xs sm:text-xs tracking-wider uppercase text-black bg-[#f3ba0b] hover:bg-[#dba504] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-lg shadow-[#f3ba0b]/10"
+                  >
+                    <img 
+                      src="https://i.postimg.cc/mrWGrWq3/android-logo-powerful-mobile-apps-for-those-with-disabilities-3.png" 
+                      alt="Android Logo" 
+                      className="h-4.5 w-auto object-contain select-none"
+                      referrerPolicy="no-referrer"
+                    />
+                    {t.download_android}
+                  </button>
+                </motion.div>
+              ) : isDownloading ? (
+                /* Dynamic secure compiler pipeline feedback loop */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-2xl border border-[#f3ba0b]/40 bg-[#f3ba0b]/[0.02] p-4 text-left font-mono"
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-[#f3ba0b]">
+                    <span className="flex items-center gap-2 uppercase tracking-wider">
+                      <RefreshCw className="h-3 w-3 animate-spin text-[#f3ba0b]" />
+                      {t.securing_package}
+                    </span>
+                    <span>{downloadProgress}%</span>
+                  </div>
+
+                  {/* Progress filler line */}
+                  <div className="mt-3 h-1.5 w-full bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#f3ba0b] to-amber-500 transition-all duration-100"
+                      style={{ width: `${downloadProgress}%` }}
+                    />
+                  </div>
+
+                  <p className="mt-3 text-[10px] text-neutral-400 select-none animate-pulse">
+                    ⚡ {stepsList[downloadStep] || 'Processing files...'}
+                  </p>
+                </motion.div>
+              ) : (
+                /* Verification completion redirect locker container */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 text-left font-mono"
+                >
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-black text-[10px] font-black">
+                      ✓
+                    </span>
+                    {t.compiling_complete}
+                  </div>
+                  <p className="mt-2 text-[11px] text-neutral-400 leading-normal">
+                    Ready for sideload. Secure verification socket requested for device.
+                  </p>
+                  <button
+                    onClick={() => setIsLockerOpen(true)}
+                    className="mt-4 w-full py-3 rounded-xl bg-emerald-500 text-black font-black uppercase text-xs tracking-wider hover:bg-emerald-400 active:scale-95 transition-all cursor-pointer text-center"
+                  >
+                    {t.open_verif_status}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Fast, secure, free subtitle badge */}
+            <div className="text-[10px] font-black tracking-[0.25em] text-neutral-500 font-mono text-center pt-2 uppercase">
+              {t.fast_secure_free}
             </div>
           </div>
 
-          {/* Sideload Installation Simulator */}
-          <div className="mt-6 border-t border-gray-100 dark:border-neutral-800 pt-5">
-            <span className="text-[10px] font-black uppercase text-neutral-400 tracking-wider block mb-3 font-display">
-              2. Download and Compile Mod Package
-            </span>
+          {/* Thin Elegant Division Spacer */}
+          <div className="w-full border-t border-neutral-800/80 my-4.5" />
 
-            {!isDownloading && !isDownloadDone && (
-              <button
-                onClick={startSimulatorDownload}
-                id="start-download-btn"
-                style={{ backgroundColor: accentColor }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 px-4 font-display text-sm font-black uppercase tracking-wider text-black shadow-lg shadow-black/10 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <Download className="h-4.5 w-4.5 text-black" />
-                GET MODDED LINK ({selectedDevice})
-              </button>
-            )}
+          {/* Real-time verified actions activity component */}
+          <div className="w-full text-left">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-neutral-400 font-mono mb-2.5 justify-start">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              {t.recent_activity}
+            </div>
 
-            {/* Actively Downloading state */}
-            {isDownloading && (
-              <div className="rounded-xl border border-dashed border-cyan-500/30 bg-cyan-500/[0.02] p-4 font-mono">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-cyan-500 flex items-center gap-2 font-bold select-none">
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                    Securing Package...
+            {/* Verified event slot */}
+            <div className="flex items-center justify-between gap-3 bg-neutral-900/60 rounded-2xl p-3.5 border border-neutral-800/40 min-h-[64px]">
+              <div className="flex items-center gap-3">
+                {/* Simulated profile avatar wrapper */}
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-neutral-800 to-neutral-700 text-xs font-black text-neutral-300">
+                  {currentActivity.name.substring(0, 1).toUpperCase()}
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-xs font-bold text-white tracking-wide">
+                    {currentActivity.name}
                   </span>
-                  <span className="text-cyan-500 font-bold">{downloadProgress}%</span>
-                </div>
-
-                {/* Simulated Progress bar */}
-                <div className="mt-3.5 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
-                  <div 
-                    className="h-full bg-cyan-500 transition-all duration-150 shadow-md shadow-cyan-500/50"
-                    style={{ width: `${downloadProgress}%` }}
-                  />
-                </div>
-
-                {/* Animated changing description logs */}
-                <p className="mt-3 text-[10px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1.5 animate-pulse min-h-[1.5rem]">
-                  <span>⚡</span> {stepsList[downloadStep]}
-                </p>
-              </div>
-            )}
-
-            {/* Download complete state! */}
-            {isDownloadDone && (
-              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4 text-xs font-mono">
-                <div className="flex items-center gap-2 text-emerald-500 font-bold">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-neutral-900 text-xs">✓</span>
-                  Compiled Successfully!
-                </div>
-                <p className="mt-2.5 text-neutral-500 dark:text-neutral-400 leading-relaxed text-[11px]">
-                  Unique dynamic key generated for {selectedDevice} sandbox payload. Ready to execute offline mode.
-                </p>
-
-                <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert(`In an production execution, this initiates direct transmission of ${game.title} ${selectedDevice} mod package!`);
-                    }}
-                    className="flex-1 rounded-lg bg-emerald-500 py-2.5 px-3 text-center text-xs font-black text-black uppercase tracking-wide hover:bg-emerald-400 active:scale-95 transition-all cursor-pointer"
-                  >
-                    Install Package File
-                  </a>
-                  <button
-                    onClick={() => setIsDownloadDone(false)}
-                    aria-label="Generate new compilation key"
-                    className="rounded-lg border border-neutral-200 hover:bg-gray-50 flex items-center justify-center p-2.5 dark:border-neutral-800 dark:hover:bg-neutral-800/50 text-neutral-500 hover:text-neutral-900 transition-colors"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
+                  <span className="text-[10px] text-neutral-400 mt-0.5 leading-snug">
+                    {currentActivity.comment}
+                  </span>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* User Review Feed & Ratings Section */}
-          <div className="mt-6 border-t border-gray-100 dark:border-neutral-800 pt-5 flex-1 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3.5">
-                <span className="text-[10px] font-black uppercase text-neutral-400 tracking-wider flex items-center gap-1 font-display">
-                  <MessageSquare className="h-3.5 w-3.5 text-neutral-400" />
-                  3. Community Verification Feed ({reviews.length})
-                </span>
-                <span className="text-[10px] text-emerald-500 bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10 font-bold">
-                  100% Secure Reviews
-                </span>
-              </div>
-
-              {/* Scrolling reviews box */}
-              <div className="space-y-3.5 max-h-[220px] overflow-y-auto pr-1">
-                <AnimatePresence initial={false}>
-                  {reviews.map((rev) => (
-                    <motion.div
-                      key={rev.id}
-                      initial={{ opacity: 0, height: 0, y: -10 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="rounded-lg bg-neutral-50/50 p-3 text-xs dark:bg-neutral-950/20 border border-gray-100 dark:border-neutral-800/40 relative"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-neutral-800 dark:text-neutral-200 font-display">@{rev.author}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono font-medium text-cyan-500">{rev.device}</span>
-                          <div className="flex items-center text-yellow-400 text-[10px] font-bold">
-                            ★ {rev.rating}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="mt-1.5 text-neutral-500 dark:text-neutral-400 leading-relaxed text-[11px]">
-                        {rev.message}
-                      </p>
-                      <span className="absolute right-3 bottom-1.5 text-[9px] text-neutral-400 font-mono scale-90">{rev.timestamp}</span>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+              {/* Verified status marker badge */}
+              <div className="text-[10px] font-black text-emerald-400 tracking-wider select-none text-right shrink-0">
+                {t.verified_status}
               </div>
             </div>
+          </div>
 
-            {/* Type/Add review form */}
-            <form onSubmit={handlePostReview} className="mt-4 border-t border-gray-100 dark:border-neutral-800/50 pt-4">
-              <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 block mb-2">Write Sideload Review</span>
-              
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <input
-                  type="text"
-                  placeholder="Gamer Username (e.g. John_App)"
-                  value={newCommentName}
-                  onChange={(e) => setNewCommentName(e.target.value)}
-                  className="rounded-lg border border-gray-200 bg-transparent px-3 py-1.5 text-xs text-neutral-900 outline-none focus:border-cyan-500 dark:border-neutral-800 dark:text-white"
-                />
-                <div className="flex items-center justify-between px-2 bg-neutral-50 dark:bg-neutral-950/20 border border-gray-200 dark:border-neutral-800 rounded-lg">
-                  <span className="text-[10px] text-neutral-400 font-medium">Your Rating:</span>
-                  <div className="flex gap-0.5" id="user-star-scale">
-                    {[1, 2, 3, 4, 5].map(stars => (
-                      <button
-                        key={stars}
-                        type="button"
-                        onClick={() => setUserRating(stars)}
-                        className="p-0.5 hover:scale-110 active:scale-95 transition-transform"
-                        title={`${stars} star rating`}
-                      >
-                        <Star className={`h-3 w-3 ${stars <= userRating ? 'fill-yellow-400 text-yellow-400' : 'text-neutral-300 dark:text-neutral-700'}`} />
-                      </button>
+          {/* Live comment/reviews toggler banner */}
+          <div className="w-full mt-4.5 text-left">
+            <button
+              onClick={() => setShowReviewsTab(!showReviewsTab)}
+              className="w-full py-2.5 px-3 bg-neutral-900/30 hover:bg-neutral-800/40 text-[10px] font-bold text-neutral-400 hover:text-white transition-colors rounded-xl flex items-center justify-between border border-neutral-800/30 cursor-pointer"
+            >
+              <span className="flex items-center gap-1.5 uppercase font-mono tracking-wider">
+                <MessageSquare className="h-3.5 w-3.5" />
+                {t.user_reviews} ({reviews.length})
+              </span>
+              <span className="text-cyan-400 font-mono pr-1 text-xs">
+                {showReviewsTab ? t.reviews_close : t.reviews_expand}
+              </span>
+            </button>
+
+            {/* Expandable comments flow */}
+            <AnimatePresence>
+              {showReviewsTab && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3.5 text-left border-t border-neutral-800/60 pt-3 space-y-3"
+                >
+                  <div className="space-y-2.5 max-h-[160px] overflow-y-auto pr-1">
+                    {reviews.map(rev => (
+                      <div key={rev.id} className="rounded-xl bg-neutral-950/50 p-3 text-[11px] border border-neutral-900/60 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#f3ba0b]">@{rev.author}</span>
+                          <span className="text-[9px] text-neutral-500 uppercase">{rev.device}</span>
+                        </div>
+                        <p className="mt-1 text-neutral-300 leading-relaxed">{rev.message}</p>
+                      </div>
                     ))}
                   </div>
-                </div>
-              </div>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Type verification feedback... (e.g. Working instantly on Android!)"
-                  value={userComment}
-                  onChange={(e) => setUserComment(e.target.value)}
-                  maxLength={160}
-                  className="w-full rounded-lg border border-gray-200 bg-transparent py-2 pl-3 pr-10 text-xs text-neutral-900 outline-none focus:border-cyan-500 dark:border-neutral-800 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1.5 flex h-7 w-7 items-center justify-center rounded-md bg-cyan-500 text-white hover:bg-cyan-600 active:scale-95 transition-all cursor-pointer"
-                  title="Post review comment"
-                >
-                  <Send className="h-3 w-3" />
-                </button>
-              </div>
-            </form>
+                  {/* Add review form inside expanded section */}
+                  <form onSubmit={handlePostReview} className="space-y-2 mt-2 pt-2 border-t border-neutral-800/40">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <input
+                        type="text"
+                        placeholder={t.username_placeholder}
+                        value={newCommentName}
+                        onChange={(e) => setNewCommentName(e.target.value)}
+                        className="rounded-lg border border-neutral-800 bg-neutral-950/60 px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#f3ba0b]"
+                      />
+                      <div className="flex items-center justify-between px-2 bg-neutral-950/60 border border-neutral-800 rounded-lg">
+                        <span className="text-[9px] text-neutral-500 font-medium">{t.stars}</span>
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map(stars => (
+                            <button
+                              key={stars}
+                              type="button"
+                              onClick={() => setUserRating(stars)}
+                              className="p-0.5"
+                              title={`${stars} Stars`}
+                            >
+                              <Star className={`h-2.5 w-2.5 ${stars <= userRating ? 'fill-[#f3ba0b] text-[#f3ba0b]' : 'text-neutral-700'}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder={t.feedback_placeholder}
+                        value={userComment}
+                        onChange={(e) => setUserComment(e.target.value)}
+                        className="w-full rounded-lg border border-neutral-800 bg-neutral-950/60 py-1.5 pl-2.5 pr-8 text-xs text-white outline-none focus:border-[#f3ba0b]"
+                      />
+                      <button
+                        type="submit"
+                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded bg-[#f3ba0b] text-black hover:bg-amber-400 cursor-pointer"
+                      >
+                        <Send className="h-2.5 w-2.5" />
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      </motion.section>
+      </motion.div>
+
+      {/* Content Locker Portal overlay */}
+      <AnimatePresence>
+        {isLockerOpen && (
+          <ContentLockerModal
+            isOpen={isLockerOpen}
+            onClose={() => setIsLockerOpen(false)}
+            game={game}
+            device={selectedDevice}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

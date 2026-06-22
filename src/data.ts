@@ -111,6 +111,197 @@ export const NAMES = [
   "David_Brown", "Jessica_Taylor", "Robert_Williams", "Lisa_Anderson", "James_Thomas"
 ];
 
+export const GAMETITLE_AR: Record<string, string> = {
+  'NightGamer': 'نايت جيمر',
+  'Cryptid Park': 'حديقة المخلوقات الخفية',
+  'Kunoichi Sekiren': 'كونويتشي سيكيرين',
+  'College Brawl': 'شجار الكلية',
+  'Tag After School': 'وسم بعد المدرسة',
+  'Spooky Milk': 'حليب مخيف',
+  'Handyman Legend': 'أسطورة العامل',
+  'Helltaker': 'هيلتيكر',
+  'Dead Cells': 'الخلايا الميتة',
+  'Vampire Survivors': 'الناجون من مصاصي الدماء',
+  'Pragmata Mobile': 'براغماتا موبايل',
+  'Assassin’s Creed Black Flag Resynced': 'أساسنز كريد بلاك فلاغ',
+  'BeamNG.drive': 'بيم ان جي درايف',
+  'Grand Theft Auto V': 'جي تي أي 5',
+  'Minecraft Mobile': 'ماين كرافت الجوال',
+  'GTA VI Mod': 'تعديل GTA VI',
+  'Palworld Mobile': 'بـال وورلد',
+  'Free Fire Max': 'فري فاير ماكس',
+  'Dream League': 'دريم ليج',
+  'Hello Neighbor': 'مرحبا جار',
+  'Netflix Mod': 'نتفليكس برو',
+  'Valorant Mobile': 'فالورانت جوال',
+  'Genshin Impact': 'جينشين إمباكت',
+  '8 Ball Pool Mod': 'تهكير 8 بال بول',
+  'CapCut Pro': 'كاب كات برو',
+  'Identity V': 'الهوية 5',
+  'Bully AE Mod': 'بولي النسخة المعدلة',
+  'Real Racing 3': 'ريال ريسينغ 3',
+  'Kinemaster Pro': 'كاين ماستر برو',
+  'Granny 3 Mod': 'غراني 3 مود',
+  'Hades Mobile': 'هاديس جوال',
+  'Shadow Fight 4': 'شادو فايت 4',
+  'F1 Mobile Racing': 'سباق فورمولا 1',
+  'PicsArt Gold': 'بيكس آرت جولد',
+  'Hollow Knight': 'هولو نايت',
+  'Minecraft Dungeons': 'ماين كرافت دونجنس',
+  'Animal Company Mods': 'انيمال كومباني مودز',
+  'Borderlands Mobile': 'بوردرلاندز جوال',
+  'Cooking Clash': 'كوكينج كلاش',
+  'FIFA Heroes': 'فيفا هيروز',
+  'Roblox Plus': 'روبلوكس بلس',
+  'Galvan Ben 10': 'بن 10 جالفان',
+  'Halloween': 'هالوين',
+  'Trees Hate You': 'الأشجار تكرهك'
+};
+
+export const CATEGORY_AR: Record<string, string> = {
+  'All': 'الجميع',
+  'Action': 'فعل',
+  'RPG': 'RPG',
+  'Strategy': 'استراتيجية',
+  'Adventure': 'مغامرة',
+  'Simulation': 'محاكاة',
+  'Horror': 'رعب',
+  'Casual': 'كاجوال',
+  'Visual Novel': 'رواية مرئية',
+  'Puzzle': 'لغز',
+  'Arcade': 'أركيد',
+  'Pixel': 'بكسل',
+  'Racing': 'سباق',
+  'Sports': 'رياضة',
+  'App': 'برنامج',
+  'Tool': 'أداة',
+};
+
+export const NAMES_AR = [
+  "جون سميث", "ميخائيل", "سارة ويلسون", "خالد ديفيس", "إيمان ميلر", 
+  "داود براون", "ياسمين تيلور", "روبرت ويليامز", "ليسا أندرسون", "جمال توماس"
+];
+
+export const MESSAGES_AR = [
+  "اللعبة تعمل بنسبة 100%!", "تم الاستلام فوراً، شكراً لكم!", "حصلت عليه أخيراً للآيفون!", 
+  "تم فتح الملفات وبدء اللعب!", "شغال وممتاز جداً بدون أي مشاكل", "المود رائع والموارد غير محدودة"
+];
+
+export const TRANSLATIONS: Record<string, Record<string, string>> = {
+  ar: {
+    games_available_num: 'أكثر من 200',
+    games_available_label: 'ألعاب',
+    categories_num: '12+',
+    categories_label: 'فئات',
+    rating_num: '4.7★',
+    rating_label: 'متوسط التقييم',
+    mods_num: 'حر',
+    mods_label: 'التعديلات',
+    
+    search_placeholder: 'ابحث عن ألعاب، تطبيقات، تعديلات...',
+    setup_guide: 'دليل التثبيت والتحقق آمن',
+    view_game: 'عرض اللعبة',
+    
+    sort_by: 'تقصير', 
+    items_found: 'العناصر التي عثر عليها:',
+    clear_filter: 'إزالة التصفية لـ:',
+    no_results: 'لا توجد نتائج تطابق بحثك',
+    no_results_desc: 'يرجى مراجعة الإملاء أو اختيار فئة مغايرة، أو تجربة عبارات شائعة مثل "تعديل" أو "جوال".',
+    
+    sort_default: 'تقصير',
+    sort_rating: 'الأعلى تقييماً',
+    sort_az: 'أ - ي',
+    sort_za: 'ي - أ',
+    
+    get_button: 'يحصل',
+    new_badge: 'جديد',
+    top_badge: 'الأعلى تقييماً',
+    verified_badge: 'تم التحقق',
+    
+    download_ios: 'تنزيل لأجهزة IOS',
+    download_android: 'تنزيل لأجهزة أندرويد',
+    fast_secure_free: 'سريع • آمن • مجاني',
+    recent_activity: 'النشاط الأخير',
+    verified_status: 'تم التحقق',
+    user_reviews: 'آراء المستخدمين',
+    reviews_close: '▼ إغلاق',
+    reviews_expand: '▲ عرض الكل',
+    username_placeholder: 'اسم المستخدم للعبة',
+    feedback_placeholder: 'تعليقك المعتمد والمجرب...',
+    stars: 'النجوم:',
+    submit: 'إرسال التقييم',
+    
+    locker_title: 'مطلوب التحقق المباشر!',
+    locker_desc: 'حزمة ملفات التعديل لـ {game} جاهزة لجهاز {device} الآن!',
+    locker_securing: 'تأمين جلسة المعالجة للجهاز',
+    locker_how_to: 'خطوات تأكيد التثبيت والتحميل:',
+    locker_step1: 'انقر فوق زر "التحقق والتحميل" الموضح أدناه.',
+    locker_step2: 'أكمل خطوة معالجة واحدة سريعة لتوثيق اتصالك الذكي (تنزيل تطبيق راعي أو تعبئة استبيان قصير مجاناً).',
+    locker_step3: 'سيبدأ تنزيل حزمة التعديل المباشر فوراً بعد اجتياز فحص اليبينغ.',
+    locker_verify_btn: 'التحقق والتحميل الآن',
+    live_monitor: 'المراقبة المباشرة السحابية:',
+    securing_package: 'تأمين الحزمة والمزامنة...',
+    compiling_complete: 'اكتمل التوليد والضغط بنجاح!',
+    open_verif_status: 'فتح حالة التحقق والمزامنة'
+  },
+  en: {
+    games_available_num: '200+',
+    games_available_label: 'Games Available',
+    categories_num: '12+',
+    categories_label: 'Categories',
+    rating_num: '4.7★',
+    rating_label: 'Avg User Rating',
+    mods_num: 'Free',
+    mods_label: 'Sideload Mods',
+    
+    search_placeholder: 'Search games, apps, mods...',
+    setup_guide: 'Setup guide & security checklist',
+    view_game: 'VIEW GAME',
+    
+    sort_by: 'Sort By',
+    items_found: 'Items Found:',
+    clear_filter: 'Clear filter for:',
+    no_results: 'No results match your lookup',
+    no_results_desc: 'Consider checking your spelling, selecting another category, or trying general names like "Mod" or "Mobile".',
+    
+    sort_default: 'Default sorting',
+    sort_rating: 'Top Rated first',
+    sort_az: 'Name A to Z',
+    sort_za: 'Name Z to A',
+    
+    get_button: 'GET',
+    new_badge: 'NEW',
+    top_badge: 'TOP RATED',
+    verified_badge: 'VERIFIED',
+    
+    download_ios: 'DOWNLOAD FOR IOS',
+    download_android: 'DOWNLOAD FOR ANDROID',
+    fast_secure_free: 'FAST • SECURE • FREE',
+    recent_activity: 'RECENT ACTIVITY',
+    verified_status: 'VERIFIED',
+    user_reviews: 'User Reviews',
+    reviews_close: '▼ Close',
+    reviews_expand: '▲ Expand',
+    username_placeholder: 'Gamer Username',
+    feedback_placeholder: 'Verified feedback comment...',
+    stars: 'Stars:',
+    submit: 'Submit Feedback',
+    
+    locker_title: 'Verification Required!',
+    locker_desc: 'Your premium mod package for {game} ({device}) is ready to install!',
+    locker_securing: 'DEVICE SESSION SECURING',
+    locker_how_to: 'How to Unlock your Download:',
+    locker_step1: 'Click the "VERIFY & DOWNLOAD" button below.',
+    locker_step2: 'Complete 1 quick verification step on the secure page (such as installing a free app or answering a simple survey).',
+    locker_step3: 'The installation payload starts automatically once the verification callback completes.',
+    locker_verify_btn: 'VERIFY & DOWNLOAD NOW',
+    live_monitor: 'LIVE MONITOR:',
+    securing_package: 'Securing Package...',
+    compiling_complete: 'Compiling complete!',
+    open_verif_status: 'Open Verification Status'
+  }
+};
+
 export const MESSAGES = [
   "Got all Games Working Thank You", "Received instantly!", "I got it !", 
   "Unlocked successfully!", "Working perfectly!", "Acquired in game!", 

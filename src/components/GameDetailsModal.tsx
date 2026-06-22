@@ -81,6 +81,15 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
     setShowCloudflare(false);
   }, [game]);
 
+  // Lock body scroll of page while modal is open
+  useEffect(() => {
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
   // Rotate activity index
   useEffect(() => {
     const timer = setInterval(() => {
@@ -158,15 +167,17 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
   const displayTitle = game.title;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden overflow-y-auto font-sans" dir="ltr">
+    <div className={showCloudflare ? "fixed inset-0 z-50 bg-black overflow-hidden font-sans" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden overflow-y-auto font-sans"} dir="ltr">
       {/* Background dark blur overlay */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/90 backdrop-blur-md"
-        onClick={onClose}
-      />
+      {!showCloudflare && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/90 backdrop-blur-md"
+          onClick={onClose}
+        />
+      )}
 
       {/* Cloudflare turnstile security gate overlay */}
       {showCloudflare && (
@@ -185,10 +196,11 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
       )}
 
       {/* Main card - optimized perfectly for mobile aspect & looks exactly like the phone screenshot */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 30 }}
+      {!showCloudflare && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.92, y: 30 }}
         transition={{ type: 'spring', damping: 26, stiffness: 210 }}
         className="relative z-10 w-full max-w-[390px] overflow-hidden rounded-[32px] bg-[#0c0c0b] border border-neutral-900 shadow-2xl text-white select-none my-auto"
       >
@@ -459,6 +471,7 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
           </div>
         </div>
       </motion.div>
+      )}
 
       {/* Content Locker Portal overlay */}
       <AnimatePresence>

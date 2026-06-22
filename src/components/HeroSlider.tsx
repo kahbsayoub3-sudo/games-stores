@@ -39,100 +39,76 @@ export default function HeroSlider({ games, onOpenGame }: HeroSliderProps) {
   const displayCategory = currentGame.category;
 
   return (
-    <div id="heroSlider" className="relative w-full overflow-hidden rounded-2xl bg-black shadow-2xl my-6 aspect-[4/3] sm:aspect-[16/8] md:aspect-[21/9]">
+    <div id="heroSlider" className="relative w-full overflow-hidden rounded-[32px] bg-black shadow-2xl my-6 aspect-[16/10] sm:aspect-[16/8] md:aspect-[21/9]">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGame.id}
-          initial={{ opacity: 0.85, scale: 1.02 }}
+          initial={{ opacity: 0.85, scale: 1.01 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0.85, scale: 0.98 }}
-          transition={{ duration: 0.6, ease: 'easeInOut' }}
+          exit={{ opacity: 0.85, scale: 0.99 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
           className="absolute inset-0 h-full w-full"
         >
           {/* Background image */}
           <img
             src={currentGame.thumbnail}
             alt={currentGame.title}
-            className="h-full w-full object-cover opacity-80"
+            className="h-full w-full object-cover opacity-85"
             referrerPolicy="no-referrer"
           />
 
           {/* Solid overlays mimicking screenshot depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-black/10" />
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-900/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
 
           {/* Slide content container */}
-          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 md:p-12 flex flex-col justify-end h-full max-w-2xl select-none">
-            {/* Category tag and special tag */}
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span
-                className="text-xs font-black uppercase tracking-widest"
-                style={{ color: accentColor }}
-              >
+          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 md:p-12 flex flex-col justify-end h-full select-none">
+            {/* Category tag */}
+            <div className="mb-2">
+              <span className="text-xs font-black uppercase tracking-widest text-[#10b981]">
                 {displayCategory}
-              </span>
-              <span className="h-1 w-1 rounded-full bg-white/40" />
-              <span className="text-[10px] font-mono font-bold text-white/60 tracking-wider flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                June 2026 UPDATE
               </span>
             </div>
 
             {/* Heavy displaying Title */}
-            <h2 className="font-display text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight drop-shadow-sm text-left">
+            <h2 className="font-sans text-[22px] sm:text-3xl md:text-4xl font-extrabold text-white leading-[1.15] tracking-tight drop-shadow-sm text-left max-w-xl">
               {displayTitle}
             </h2>
 
-            {/* Controls panel */}
-            <div className="mt-4 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
+            {/* Controls panel perfectly aligned like screenshot */}
+            <div className="mt-5 flex items-center gap-3.5 flex-wrap">
               <button
                 onClick={() => onOpenGame(currentGame)}
                 id={`view-featured-${currentGame.id}`}
-                className="rounded-full bg-white hover:bg-neutral-100/90 text-neutral-900 py-2.5 px-6 text-xs sm:text-sm font-black tracking-wider uppercase transition-all duration-200 active:scale-95 shadow-lg shadow-white/5 cursor-pointer"
+                className="rounded-full bg-white hover:bg-neutral-100 text-neutral-950 py-2.5 px-6 text-[11px] sm:text-xs font-black tracking-widest uppercase transition-all duration-200 active:scale-95 cursor-pointer shadow-md"
               >
-                {t.view_game}
+                VIEW GAME
               </button>
 
-              <div className="flex items-center gap-1 text-sm font-black text-white/80">
-                <Star className="h-4 w-4 fill-[#f3ba0b] text-[#f3ba0b]" />
-                <span>★ {currentGame.rating}</span>
+              <div className="flex items-center gap-1 text-[11px] sm:text-xs font-extrabold text-white/80 py-1 select-none">
+                <span className="text-white/40">★</span>
+                <span>{currentGame.rating}</span>
+              </div>
+
+              {/* Slide dots tracking aligned directly in same row */}
+              <div className="flex items-center gap-1.5 ml-2 min-w-[70px] sm:min-w-[90px] max-w-[120px] sm:max-w-none flex-1">
+                {sliderGames.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className="h-1 rounded-full transition-all duration-300 flex-1 cursor-pointer"
+                    style={{
+                      backgroundColor: idx === currentIndex ? '#00f3ff' : 'rgba(255, 255, 255, 0.25)',
+                      height: idx === currentIndex ? '4px' : '2px',
+                    }}
+                    title={`Go to slide ${idx + 1}`}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
-
-      {/* Slide dots tracking */}
-      <div className="absolute bottom-6 right-6 z-25 flex gap-2">
-        {sliderGames.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentIndex(idx)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              idx === currentIndex ? 'w-6 bg-cyan-400' : 'w-1.5 bg-white/45'
-            }`}
-            title={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Manual Left/Right buttons for fine tuning layout */}
-      <div className="absolute bottom-18 right-6 z-25 hidden sm:flex gap-1.5">
-        <button
-          onClick={handlePrev}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-black/95 active:scale-90"
-          title="Previous slide"
-        >
-          <ChevronLeft className="h-4.5 w-4.5" />
-        </button>
-        <button
-          onClick={handleNext}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-black/95 active:scale-90"
-          title="Next slide"
-        >
-          <ChevronRight className="h-4.5 w-4.5" />
-        </button>
-      </div>
     </div>
   );
 }

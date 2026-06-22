@@ -56,7 +56,7 @@ export default function CloudflareVerification({ onSuccess, onCancel }: Cloudfla
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#000000] flex flex-col justify-between p-6 text-white font-sans text-left">
+    <div className="absolute inset-0 z-50 bg-[#000000] flex flex-col justify-between p-6 text-white font-sans text-left rounded-[32px]">
       {/* Top Banner Header & Cancel Button */}
       <div>
         <div className="flex items-center justify-between mt-2">

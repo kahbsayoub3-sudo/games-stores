@@ -246,13 +246,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   en: {
     games_available_num: '200+',
-    games_available_label: 'Games Available',
+    games_available_label: 'GAMES',
     categories_num: '12+',
-    categories_label: 'Categories',
+    categories_label: 'CATEGORIES',
     rating_num: '4.7★',
-    rating_label: 'Avg User Rating',
+    rating_label: 'AVG RATING',
     mods_num: 'Free',
-    mods_label: 'Sideload Mods',
+    mods_label: 'MODS',
     
     search_placeholder: 'Search games, apps, mods...',
     setup_guide: 'Setup guide & security checklist',

@@ -90,22 +90,22 @@ export default function App() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
         
         {/* Statistics Grid Board mimicking original screenshot banner exactly */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-px bg-neutral-900/65 rounded-2xl overflow-hidden border border-neutral-850 mb-6 shadow-sm select-none">
-          <div className="bg-[#0c0c0b] py-4 px-6 text-center transition-colors">
-            <span className="block font-display text-xl font-black text-cyan-500">{t.games_available_num}</span>
-            <span className="block text-xs font-mono font-bold text-neutral-500 mt-0.5">{t.games_available_label}</span>
+        <section className="grid grid-cols-4 gap-px bg-neutral-900 rounded-2xl overflow-hidden border border-neutral-900 mb-6 shadow-sm select-none">
+          <div className="bg-[#0c0c0b] py-3.5 px-1 sm:py-4 sm:px-6 text-center transition-all">
+            <span className="block font-display text-[15px] xs:text-[17px] sm:text-xl font-black text-cyan-400 tracking-tight">{t.games_available_num}</span>
+            <span className="block text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-mono font-bold text-neutral-500 mt-1 uppercase tracking-wider">{t.games_available_label}</span>
           </div>
-          <div className="bg-[#0c0c0b] py-4 px-6 text-center transition-colors">
-            <span className="block font-display text-xl font-black text-purple-500">{t.categories_num}</span>
-            <span className="block text-xs font-mono font-bold text-neutral-500 mt-0.5">{t.categories_label}</span>
+          <div className="bg-[#0c0c0b] py-3.5 px-1 sm:py-4 sm:px-6 text-center transition-all">
+            <span className="block font-display text-[15px] xs:text-[17px] sm:text-xl font-black text-purple-400 tracking-tight">{t.categories_num}</span>
+            <span className="block text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-mono font-bold text-neutral-500 mt-1 uppercase tracking-wider">{t.categories_label}</span>
           </div>
-          <div className="bg-[#0c0c0b] py-4 px-6 text-center transition-colors">
-            <span className="block font-display text-xl font-black text-emerald-500">{t.rating_num}</span>
-            <span className="block text-xs font-mono font-bold text-neutral-500 mt-0.5">{t.rating_label}</span>
+          <div className="bg-[#0c0c0b] py-3.5 px-1 sm:py-4 sm:px-6 text-center transition-all">
+            <span className="block font-display text-[15px] xs:text-[17px] sm:text-xl font-black text-emerald-400 tracking-tight">{t.rating_num}</span>
+            <span className="block text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-mono font-bold text-neutral-500 mt-1 uppercase tracking-wider">{t.rating_label}</span>
           </div>
-          <div className="bg-[#0c0c0b] py-4 px-6 text-center transition-colors">
-            <span className="block font-display text-xl font-black text-rose-500">{t.mods_num}</span>
-            <span className="block text-xs font-mono font-bold text-neutral-500 mt-0.5">{t.mods_label}</span>
+          <div className="bg-[#0c0c0b] py-3.5 px-1 sm:py-4 sm:px-6 text-center transition-all">
+            <span className="block font-display text-[15px] xs:text-[17px] sm:text-xl font-black text-pink-500 tracking-tight">{t.mods_num}</span>
+            <span className="block text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-mono font-bold text-neutral-500 mt-1 uppercase tracking-wider">{t.mods_label}</span>
           </div>
         </section>
 

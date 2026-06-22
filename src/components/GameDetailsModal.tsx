@@ -167,43 +167,39 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
   const displayTitle = game.title;
 
   return (
-    <div className={showCloudflare ? "fixed inset-0 z-50 bg-black overflow-hidden font-sans" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden overflow-y-auto font-sans"} dir="ltr">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden overflow-y-auto font-sans" dir="ltr">
       {/* Background dark blur overlay */}
-      {!showCloudflare && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/90 backdrop-blur-md"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Cloudflare turnstile security gate overlay */}
-      {showCloudflare && (
-        <CloudflareVerification
-          onSuccess={() => {
-            setShowCloudflare(false);
-            const lockerUrl = "https://auraplay.online/cl/i/7jvk7v";
-            const gameTitle = encodeURIComponent(game.title);
-            const gameImage = encodeURIComponent(game.thumbnail);
-            const deviceName = encodeURIComponent(selectedDevice || "Android");
-            const finalUrl = `${lockerUrl}?title=${gameTitle}&image=${gameImage}&device=${deviceName}`;
-            window.location.href = finalUrl;
-          }}
-          onCancel={() => setShowCloudflare(false)}
-        />
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/90 backdrop-blur-md"
+        onClick={onClose}
+      />
 
       {/* Main card - optimized perfectly for mobile aspect & looks exactly like the phone screenshot */}
-      {!showCloudflare && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 30 }}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 30 }}
         transition={{ type: 'spring', damping: 26, stiffness: 210 }}
         className="relative z-10 w-full max-w-[390px] overflow-hidden rounded-[32px] bg-[#0c0c0b] border border-neutral-900 shadow-2xl text-white select-none my-auto"
       >
+        {/* Cloudflare turnstile security gate overlay */}
+        {showCloudflare && (
+          <CloudflareVerification
+            onSuccess={() => {
+              setShowCloudflare(false);
+              const lockerUrl = "https://auraplay.online/cl/i/7jvk7v";
+              const gameTitle = encodeURIComponent(game.title);
+              const gameImage = encodeURIComponent(game.thumbnail);
+              const deviceName = encodeURIComponent(selectedDevice || "Android");
+              const finalUrl = `${lockerUrl}?title=${gameTitle}&image=${gameImage}&device=${deviceName}`;
+              window.location.href = finalUrl;
+            }}
+            onCancel={() => setShowCloudflare(false)}
+          />
+        )}
         {/* Upper visual graphic block with gradient fading out */}
         <div className="relative h-64 w-full overflow-hidden">
           <img
@@ -471,7 +467,6 @@ export default function GameDetailsModal({ game, onClose }: GameDetailsModalProp
           </div>
         </div>
       </motion.div>
-      )}
 
       {/* Content Locker Portal overlay */}
       <AnimatePresence>
